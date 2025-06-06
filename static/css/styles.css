@@ -1,1 +1,392 @@
+/* Баннер */
+.hero-section {
+    background: url('../images/banner.jpg') center/cover no-repeat;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Категории товаров */
+.category-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.category-card img {
+    width: 100%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.category-card:hover img {
+    transform: scale(1.05);
+}
+
+.category-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    text-align: center;
+    padding: 15px;
+}
+
+.category-overlay h3 {
+    color: white;
+    margin: 0;
+}
+/* Сетка товаров */
+.product-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Изображения товаров */
+.product-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    transition: transform 0.3s;
+}
+
+.product-card:hover img {
+    transform: scale(1.05);
+}
+
+/* Информация о товаре */
+.product-info {
+    padding: 10px 0;
+}
+
+.product-info h3 {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Кнопка */
+.btn-primary {
+    background: #2c3e50;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    background: #1a252f;
+}
+/* Контейнер товара */
+.product-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    padding: 20px 0;
+}
+
+/* Изображение товара */
+.product-image img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Информация о товаре */
+.product-info {
+    padding: 10px;
+}
+
+.product-info h1 {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.description {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.price span {
+    font-size: 22px;
+    color: #e74c3c;
+}
+
+/* Кнопка "Добавить в корзину" */
+.btn-primary {
+    background: #2c3e50;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.btn-primary:hover {
+    background: #1a252f;
+}
+/* Общий стиль таблицы */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.table th {
+    background: #f8f9fa;
+    font-weight: bold;
+}
+
+.table td, .table th {
+    padding: 12px;
+}
+
+/* Кнопка удаления */
+.btn-danger {
+    font-size: 16px;
+    padding: 6px 10px;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+/* Итоговая сумма */
+.cart-summary {
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Кнопки "Продолжить покупки" и "Оформить заказ" */
+.btn-success, .btn-outline-secondary {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.btn-success {
+    background: #27ae60;
+    border: none;
+}
+
+.btn-success:hover {
+    background: #219150;
+}
+/* Карточка входа */
+.card {
+    border-radius: 10px;
+    border: none;
+}
+
+/* Кнопка входа */
+.btn-primary {
+    background-color: #0275d8;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.btn-primary:hover {
+    background-color: #025aa5;
+}
+
+/* Ссылка "Забыли пароль?" */
+.text-decoration-none {
+    color: #0275d8;
+    transition: color 0.3s;
+}
+
+.text-decoration-none:hover {
+    color: #025aa5;
+}
+/* Карточка регистрации */
+.card {
+    border-radius: 10px;
+    border: none;
+}
+
+/* Кнопка регистрации */
+.btn-primary {
+    background-color: #0275d8;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.btn-primary:hover {
+    background-color: #025aa5;
+}
+
+/* Ссылка на вход */
+.text-decoration-none {
+    color: #0275d8;
+    transition: color 0.3s;
+}
+
+.text-decoration-none:hover {
+    color: #025aa5;
+}
+
+.hero-section {
+    background: url('../images/hero.jpg') center/cover no-repeat;
+    height: 500px;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* затемнение */
+    z-index: -1;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.category-card {
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover {
+    transform: scale(1.03);
+}
+
+.category-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-card:hover .category-overlay {
+    opacity: 1;
+}
+
+.category-overlay h3 {
+    font-size: 2rem;
+}
+
+/* Эффект наведения на карточку */
+.category-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover {
+    transform: scale(1.03);
+}
+
+/* Полупрозрачный overlay */
+.category-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-card:hover .category-overlay {
+    opacity: 1;
+}
+
+/* Увеличение картинки при наведении */
+.table-image {
+    width: 100%;
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover .table-image {
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        height: 300px;
+    }
+    .hero-section h1 {
+        font-size: 1.8rem;
+    }
+    .hero-section p {
+        font-size: 1rem;
+    }
+}
+
+.banner {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Стрелки */
+.slider-arrow-left,
+.slider-arrow-right {
+    background: none; /* Убираем фон */
+    border: none;
+    font-size: 3rem;
+    color: white;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    padding: 0 15px;
+}
+
+.slider-arrow-left:hover,
+.slider-arrow-right:hover {
+    opacity: 1; /* При наведении повышаем прозрачность */
+}
 
