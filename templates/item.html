@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename=item.image) }}" class="img-fluid" alt="{{ item.name }}">
+        </div>
+        <div class="col-md-6">
+            <h2>{{ item.name }}</h2>
+            <p class="text-muted">{{ item.description }}</p>
+            <h4 class="text-danger">{{ item.price }} ₽</h4>
+
+            <ul class="list-group my-4">
+                {% if item.type == 'table' %}
+                    <li class="list-group-item">Размер: {{ item.size }}</li>
+                    <li class="list-group-item">Цвет ног: {{ item.leg_color }}</li>
+                    <li class="list-group-item">Материал: {{ item.material_type }}</li>
+                {% elif item.type == 'chair' %}
+                    <li class="list-group-item">Цвет ног: {{ item.leg_color }}</li>
+                    <li class="list-group-item">Поворотный: {{ 'Да' if item.is_rotating else 'Нет' }}</li>
+                {% endif %}
+                <li class="list-group-item">В наличии: {{ item.quantity }}</li>
+            </ul>
+
+            {% if item.quantity > 0 %}
+            <form action="{{ url_for('add_to_cart', product_type=item.type, product_id=item.id) }}" method="post">
+                <button type="submit" class="btn btn-success">Добавить в корзину</button>
+            </form>
+            {% else %}
+            <button class="btn btn-secondary" disabled>Нет в наличии</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

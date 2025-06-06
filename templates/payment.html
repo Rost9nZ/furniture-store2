@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Оплата заказа - Мебель AERO{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+    <h2 class="mb-4 text-center">Оплата заказа</h2>
+    <p class="text-center text-muted">Введите данные карты для оплаты. Оплата является тестовой.</p>
+
+    <form method="post" class="border p-4 rounded shadow-sm bg-light">
+        <div class="mb-3">
+            <label for="card_number" class="form-label">Номер карты</label>
+            <input type="text" class="form-control" id="card_number" name="card_number" maxlength="19" placeholder="0000 0000 0000 0000" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="card_name" class="form-label">Имя владельца (латиницей)</label>
+            <input type="text" class="form-control" id="card_name" name="card_name" placeholder="IVAN IVANOV" required>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="expiry_date" class="form-label">Срок действия</label>
+                <input type="text" class="form-control" id="expiry_date" name="expiry_date" maxlength="5" placeholder="MM/YY" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="cvv" class="form-label">CVV</label>
+                <input type="password" class="form-control" id="cvv" name="cvv" maxlength="3" placeholder="•••" required>
+            </div>
+        </div>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-success btn-lg">Оплатить</button>
+        </div>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{{ url_for('checkout') }}" class="text-muted">← Назад к оформлению</a>
+    </div>
+</div>
+
+<script>
+    // Автоматическое добавление пробелов в номер карты
+    document.getElementById('card_number').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.substring(0, 16);
+        e.target.value = value.replace(/(.{4})/g, '$1 ').trim();
+    });
+
+    // Автоматическое форматирование MM/YY
+    document.getElementById('expiry_date').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+    });
+</script>
+{% endblock %}

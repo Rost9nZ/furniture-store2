@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина - Мебель AERO{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Корзина</h1>
+
+    {% if cart_items %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for item in cart_items %}
+                <div class="col">
+                    <div class="card h-100 text-center">
+                        <!-- Картинка товара -->
+                        <img src="{{ url_for('static', filename=item['image']) }}" class="card-img-top" alt="{{ item['name'] }}" style="max-width: 100%;">
+
+                        <div class="card-body">
+                            <!-- Название и описание товара -->
+                            <p class="fw-bold text-dark mb-2">{{ item['name'] }} {{ item['description'] }}</p>
+
+                            <!-- Кнопки + и - для изменения количества товара -->
+                            <div class="d-flex justify-content-center align-items-center">
+                                <form action="{{ url_for('update_cart', product_type=item['type'], product_id=item['id'], action='decrease') }}" method="post">
+                                    <button type="submit" class="btn btn-outline-secondary">-</button>
+                                </form>
+                                <span class="mx-3">{{ item['quantity'] }}</span>
+                                <form action="{{ url_for('update_cart', product_type=item['type'], product_id=item['id'], action='increase') }}" method="post">
+                                    <button type="submit" class="btn btn-outline-secondary">+</button>
+                                </form>
+                            </div>
+
+                            <!-- Цена товара и общая сумма -->
+                            <p class="card-text">Цена: <strong>{{ item['price'] }} ₽</strong></p>
+                            <p class="card-text">Сумма: <strong>{{ item['total'] }} ₽</strong></p>
+                            <p class="card-text">Остаток: <strong>{{ item['stock'] }}</strong></p>
+
+                            <!-- Кнопка удаления товара -->
+                            <form action="{{ url_for('remove_from_cart', product_type=item['type'], product_id=item['id']) }}" method="post">
+                                <button type="submit" class="btn btn-danger">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary text-end">
+            <p class="fs-4"><strong>Итого: {{ total_price }} ₽</strong></p>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Продолжить покупки</a>
+            <form action="{{ url_for('checkout') }}" method="post">
+                <button type="submit" class="btn btn-success">Оформить заказ</button>
+            </form>
+        </div>
+    {% else %}
+        <p class="text-center fs-5 mt-4">Ваша корзина пуста.</p>
+    {% endif %}
+</div>
+{% endblock %}

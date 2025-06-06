@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category_name }} - Мебель AERO{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">{{ category_name }}</h1>
+
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-md-4">
+            <div class="product-card">
+                <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                    <img src="{{ url_for('static', filename='images/products/' ~ product.image) }}"
+                         alt="{{ product.name }}" class="img-fluid">
+                </a>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <p class="price">{{ product.price }} ₽</p>
+                    <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+                        <button type="submit" class="btn btn-primary">В корзину</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

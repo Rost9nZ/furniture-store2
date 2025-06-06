@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Результаты поиска для: "{{ query }}"</h2>
+
+    {% if not tables and not chairs %}
+        <p class="text-center">Ничего не найдено.</p>
+    {% endif %}
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+
+        {% for table in tables %}
+        <div class="col">
+            <div class="card h-100 text-center">
+                <img src="{{ url_for('static', filename=table.image if table.image else 'images/Bongo120Alaska.png') }}" class="card-img-top" alt="{{ table.name }}">
+
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-center align-items-center" style="color: black; margin-bottom: 10px;">
+                        <span>{{ table.name }}</span>
+                        <span style="margin-left: 15px;">{{ table.description }}</span>
+                        {% if table.material_type %}
+                            <span style="margin-left: 15px;">{{ table.material_type }}</span>
+                        {% endif %}
+                    </h5>
+
+                    <p class="card-text" style="margin-bottom: 8px;">Цвет ног: <strong>{{ table.leg_color }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Размер: <strong>{{ table.size }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Цена: <strong>{{ table.price }} ₽</strong></p>
+                    <p class="card-text" style="margin-bottom: 16px;">В наличии: {{ table.quantity }} шт.</p>
+
+                    {% if table.quantity > 0 %}
+                        <form method="post" action="{{ url_for('add_to_cart', product_type='table', product_id=table.id) }}">
+                            <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>Нет в наличии</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% for chair in chairs %}
+        <div class="col">
+            <div class="card h-100 text-center">
+                <img src="{{ url_for('static', filename=chair.image if chair.image else 'images/B815m.png') }}" class="card-img-top" alt="{{ chair.name }}">
+
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-center align-items-center" style="color: black; margin-bottom: 10px;">
+                        <span>{{ chair.name }}</span>
+                        <span style="margin-left: 15px;">{{ chair.description }}</span>
+                        {% if chair.rotating %}
+                            <span class="text-muted" style="margin-left: 15px;">Поворотный</span>
+                        {% endif %}
+                        <span style="margin-left: 15px;">{{ chair.material_type }}</span>
+                    </h5>
+
+                    <p class="card-text" style="margin-bottom: 8px;">Поворотный: <strong>{{ chair.is_rotating }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Цвет ног: <strong>{{ chair.leg_color }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Цена: <strong>{{ chair.price }} ₽</strong></p>
+                    <p class="card-text" style="margin-bottom: 16px;">В наличии: {{ chair.quantity }} шт.</p>
+
+                    {% if chair.quantity > 0 %}
+                        <form method="post" action="{{ url_for('add_to_cart', product_type='chair', product_id=chair.id) }}">
+                            <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>Нет в наличии</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

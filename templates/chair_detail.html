@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ chair.name }} — Мебель AERO{% endblock %}
+
+{% block content %}
+<style>
+    .detail-container {
+        padding: 40px 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f9fafc;
+        color: #222;
+        min-height: 100vh;
+    }
+
+    .detail-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 40px;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .image-column {
+        flex: 1 1 350px;
+        max-width: 450px;
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow:
+            0 12px 25px rgba(0,0,0,0.12),
+            0 6px 12px rgba(0,0,0,0.06);
+        transition: transform 0.4s ease;
+        background: white;
+    }
+    .image-column:hover {
+        transform: scale(1.05);
+        box-shadow:
+            0 25px 50px rgba(0,0,0,0.18),
+            0 12px 25px rgba(0,0,0,0.1);
+    }
+    .image-column img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+        border-radius: 20px;
+    }
+
+    .info-column {
+        flex: 1 1 350px;
+        max-width: 600px;
+        background: white;
+        padding: 30px 40px;
+        border-radius: 20px;
+        box-shadow:
+            0 10px 30px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .info-column h2 {
+        font-size: 2.8rem;
+        font-weight: 900;
+        margin-bottom: 25px;
+        letter-spacing: 1.5px;
+        color: #333;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px #b3b3b3;
+    }
+
+    .specs-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 30px 0;
+        font-size: 1.2rem;
+        line-height: 1.8;
+        color: #555;
+    }
+    .specs-list li {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+    }
+    .specs-list li strong {
+        color: #222;
+    }
+
+    .btn-primary {
+        align-self: stretch;
+        background: linear-gradient(135deg, #4a90e2, #357ABD);
+        border: none;
+        padding: 18px 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        border-radius: 50px;
+        box-shadow: 0 6px 20px rgba(53,122,189,0.5);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        user-select: none;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #357ABD, #4a90e2);
+        box-shadow: 0 8px 25px rgba(53,122,189,0.7);
+        transform: translateY(-3px);
+    }
+
+    .btn-secondary {
+        background: #ccc;
+        color: #777;
+        border-radius: 50px;
+        padding: 18px 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        width: 100%;
+        cursor: not-allowed;
+        user-select: none;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 40px;
+        font-weight: 600;
+        color: #555;
+        text-decoration: none;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+    .back-link:hover {
+        color: #357ABD;
+        text-decoration: underline;
+    }
+
+    hr.divider {
+        border: none;
+        border-top: 2px solid #e3e8f0;
+        margin: 60px 0 40px;
+        width: 100%;
+    }
+
+    h3.section-title {
+        font-weight: 900;
+        font-size: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 35px;
+        color: #444;
+        text-align: center;
+    }
+
+    /* Характеристики */
+    .specs-row {
+        max-width: 700px;
+        margin: 0 auto 60px auto;
+        background: #fff;
+        padding: 25px 40px;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .specs-row ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 1.1rem;
+        color: #555;
+    }
+    .specs-row li {
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+    }
+
+    /* Рекомендации */
+    .recommendations {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        justify-content: center;
+    }
+    .recommendation-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        width: 280px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+    }
+    .recommendation-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    .recommendation-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .recommendation-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .recommendation-title {
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+        color: #222;
+        min-height: 3em;
+    }
+    .recommendation-desc {
+        color: #777;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+        min-height: 2.5em;
+    }
+    .recommendation-price {
+        font-weight: 900;
+        font-size: 1.2rem;
+        color: #357ABD;
+        margin-bottom: 15px;
+    }
+    .recommendation-btn {
+        background: transparent;
+        border: 2px solid #357ABD;
+        border-radius: 40px;
+        padding: 10px 0;
+        font-weight: 700;
+        color: #357ABD;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+        letter-spacing: 1.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        user-select: none;
+    }
+    .recommendation-btn:hover {
+        background: #357ABD;
+        color: white;
+    }
+
+    /* Сообщения */
+    #cart-message {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-top: 20px;
+        text-align: center;
+    }
+    #cart-message.alert-success {
+        color: #2e7d32;
+    }
+    #cart-message.alert-danger {
+        color: #c62828;
+    }
+
+    @media (max-width: 768px) {
+        .detail-row {
+            flex-direction: column;
+            align-items: center;
+        }
+        .info-column {
+            max-width: 100%;
+            padding: 25px 20px;
+        }
+        .image-column {
+            max-width: 100%;
+            width: 90vw;
+        }
+    }
+</style>
+
+<div class="detail-container container">
+    <div class="detail-row">
+        <div class="image-column">
+            <img src="{{ url_for('static', filename=chair.image) }}" alt="{{ chair.name }}" loading="lazy">
+        </div>
+        <div class="info-column">
+            <h2>{{ chair.name }} {{ chair.description }}</h2>
+
+            <ul class="specs-list">
+                <li><strong>Цена:</strong> <span>{{ chair.price }} ₽</span></li>
+                <li><strong>Материал:</strong> <span>{{ chair.material_type }}</span></li>
+                <li><strong>Цвет:</strong> <span>{{ chair.color }}</span></li>
+                <li><strong>Цвет ног:</strong> <span>{{ chair.leg_color }}</span></li>
+                <li><strong>Поворотный:</strong> <span>{{ 'Да' if chair.is_rotating else 'Нет' }}</span></li>
+                <li><strong>Подлокотники:</strong> <span>{{ 'Есть' if chair.armrest else 'Нет' }}</span></li>
+                <li><strong>В наличии:</strong> <span>{{ chair.quantity }} шт.</span></li>
+            </ul>
+
+            {% if chair.quantity > 0 %}
+                <form id="add-to-cart-form" action="{{ url_for('add_to_cart', product_type='chair', product_id=chair.id) }}" method="post">
+                    <button type="submit" class="btn btn-primary btn-lg">Добавить в корзину</button>
+                </form>
+                <div id="cart-message"></div>
+            {% else %}
+                <button class="btn btn-secondary btn-lg" disabled>Нет в наличии</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="{{ request.referrer or url_for('chairs') }}" class="back-link">← Назад</a>
+
+    {% if chair.width_mm and chair.depth_mm and chair.height_mm %}
+    <hr class="divider">
+    <h3 class="section-title">Характеристики</h3>
+    <div class="specs-row">
+        <ul>
+            <li><strong>Ширина:</strong> <span>{{ chair.width_mm }} мм</span></li>
+            <li><strong>Глубина:</strong> <span>{{ chair.depth_mm }} мм</span></li>
+            <li><strong>Высота:</strong> <span>{{ chair.height_mm }} мм</span></li>
+            <li><strong>Ширина сиденья:</strong> <span>{{ chair.seat_width_mm }} мм</span></li>
+            <li><strong>Глубина сиденья:</strong> <span>{{ chair.seat_depth_mm }} мм</span></li>
+            <li><strong>Высота сиденья:</strong> <span>{{ chair.seat_height_mm }} мм</span></li>
+            <li><strong>Страна производства:</strong> <span>{{ chair.country_of_origin }}</span></li>
+        </ul>
+    </div>
+    {% endif %}
+
+    <hr class="divider">
+    <h3 class="section-title">Рекомендуемые товары</h3>
+    <div class="recommendations">
+        {% for rec in recommendations %}
+        <div class="recommendation-card" onclick="location.href='{{ url_for('chair_detail', chair_id=rec.id) }}'">
+            <img src="{{ url_for('static', filename=rec.image) }}" alt="{{ rec.name }}" loading="lazy">
+            <div class="recommendation-body">
+                <h5 class="recommendation-title">{{ rec.name }} {{ rec.description if rec.description else '' }}</h5>
+                <p class="recommendation-desc">{{ rec.material_type }}, {{ rec.color }}</p>
+                <p class="recommendation-price">{{ rec.price }} ₽</p>
+                <a href="{{ url_for('chair_detail', chair_id=rec.id) }}" class="recommendation-btn">Подробнее</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.getElementById('add-to-cart-form')?.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(new FormData(this))
+    })
+    .then(response => response.json())
+    .then(data => {
+        const msgDiv = document.getElementById('cart-message');
+        if (data.error) {
+            msgDiv.textContent = data.error;
+            msgDiv.className = 'alert alert-danger mt-3';
+        } else if (data.message) {
+            msgDiv.textContent = data.message;
+            msgDiv.className = 'alert alert-success mt-3';
+        }
+    })
+    .catch(() => {
+        const msgDiv = document.getElementById('cart-message');
+        msgDiv.textContent = 'Ошибка при добавлении в корзину';
+        msgDiv.className = 'alert alert-danger mt-3';
+    });
+});
+</script>
+{% endblock %}

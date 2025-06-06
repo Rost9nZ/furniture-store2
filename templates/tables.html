@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}Столы - Мебель AERO{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Столы</h1>
+
+    <div class="row">
+        <!-- Левая часть: товары -->
+        <div class="col-md-9">
+            {% if tables %}
+                <div class="row row-cols-1 row-cols-md-3 g-4" id="products-list">
+                    {% for table in tables %}
+                        <div class="col product-item"
+                             data-price="{{ table.price }}"
+                             data-leg-color="{{ table.leg_color|lower }}"
+                             data-material-type="{{ table.material_type|lower if table.material_type else 'unknown' }}"
+                             data-shape="{{ table.shape|lower }}">
+                            <div class="card h-100 text-center">
+                                <!-- Кликабельное изображение -->
+                                <a href="{{ url_for('table_detail', table_id=table.id) }}">
+                                    <img src="{{ url_for('static', filename=table.image) }}" class="card-img-top" alt="{{ table.name }}" style="max-width: 100%;">
+                                </a>
+                                <div class="card-body">
+                                    <h5 class="card-title d-flex justify-content-center align-items-center" style="color: black; margin-bottom: 10px;">
+                                        <span>{{ table.name }}</span>
+                                        <span class="text-muted" style="margin-left: 15px;">{{ table.description }}</span>
+                                    </h5>
+                                    <p class="card-text" style="margin-bottom: 8px;">Материал:<strong> {{ table.material_display }}</strong></p>
+                                    <p class="card-text" style="margin-bottom: 8px;">Цвет ног: <strong>{{ table.leg_color }}</strong></p>
+                                    <p class="card-text" style="margin-bottom: 8px;">Размер: <strong>{{ table.size }}</strong></p>
+                                    <p class="card-text" style="margin-bottom: 8px;">Цена: <strong>{{ table.price }} ₽</strong></p>
+                                    <p class="card-text" style="margin-bottom: 16px;">В наличии: {{ table.quantity }} шт.</p>
+
+                                    {% if table.quantity > 0 %}
+                                        <form action="{{ url_for('add_to_cart', product_type='table', product_id=table.id) }}" method="post">
+                                            <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                                        </form>
+                                    {% else %}
+                                        <button class="btn btn-secondary" disabled>Нет в наличии</button>
+                                    {% endif %}
+
+                                    <!-- Кнопка Подробнее -->
+                                    <a href="{{ url_for('table_detail', table_id=table.id) }}" class="btn btn-outline-secondary mt-2">Подробнее</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center fs-5 mt-4">Столов пока нет в наличии.</p>
+            {% endif %}
+        </div>
+
+        <!-- Правая часть: фильтры -->
+        <div class="col-md-3">
+            <h5>Фильтры</h5>
+            <hr>
+
+            <!-- Цена -->
+            <label for="priceRange">Цена (₽):</label>
+            <input type="range" id="priceRange" min="{{ min_price }}" max="{{ max_price }}" value="{{ max_price }}" step="10">
+            <div>Максимум: <span id="priceValue">{{ max_price }}</span> ₽</div>
+
+            <hr>
+
+            <!-- Цвет ног -->
+            <h6>Цвет ног:</h6>
+            {% for color in leg_colors %}
+                <div class="form-check">
+                    <input class="form-check-input leg-color-checkbox" type="checkbox" value="{{ color|lower }}" id="legColor{{ loop.index }}">
+                    <label class="form-check-label" for="legColor{{ loop.index }}">
+                        {{ color }}
+                    </label>
+                </div>
+            {% endfor %}
+
+            <hr>
+
+            <!-- Материал -->
+            <h6>Материал:</h6>
+            {% for material in material_types %}
+                {% set material_code = material.code %}
+                <div class="form-check">
+                    <input class="form-check-input material-type-checkbox"
+                           type="checkbox"
+                           value="{{ material_code }}"
+                           id="materialType{{ loop.index }}"
+                           {% if material_code in request.args.getlist('material') %}checked{% endif %}>
+                    <label class="form-check-label" for="materialType{{ loop.index }}">
+                        {{ material.name }}
+                    </label>
+                </div>
+            {% endfor %}
+
+            <hr>
+
+            <!-- Форма стола -->
+            <h6>Форма стола:</h6>
+            {% for shape in shapes %}
+                {% set shape_lower = shape|lower %}
+                <div class="form-check">
+                    <input class="form-check-input shape-checkbox"
+                           type="checkbox"
+                           value="{{ shape_lower }}"
+                           id="shape{{ loop.index }}"
+                           {% if shape_lower in request.args.getlist('shape') %}checked{% endif %}>
+                    <label class="form-check-label" for="shape{{ loop.index }}">
+                        {{ shape }}
+                    </label>
+                </div>
+            {% endfor %}
+
+            <button id="resetFilters" class="btn btn-secondary btn-sm mt-3">Сбросить фильтры</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const priceRange = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    const legColorCheckboxes = document.querySelectorAll('.leg-color-checkbox');
+    const materialTypeCheckboxes = document.querySelectorAll('.material-type-checkbox');
+    const shapeCheckboxes = document.querySelectorAll('.shape-checkbox');
+    const products = document.querySelectorAll('.product-item');
+    const resetBtn = document.getElementById('resetFilters');
+
+    function getURLParams() {
+        const params = {};
+        const queryString = window.location.search.slice(1);
+        const pairs = queryString.split('&');
+        for (const pair of pairs) {
+            if (!pair) continue;
+            const [key, value] = pair.split('=');
+            if (!params[key]) {
+                params[key] = [];
+            }
+            params[key].push(decodeURIComponent(value));
+        }
+        return params;
+    }
+
+    function applyURLFilters() {
+        const params = getURLParams();
+
+        if (params.material) {
+            materialTypeCheckboxes.forEach(chk => {
+                if (params.material.includes(chk.value)) {
+                    chk.checked = true;
+                }
+            });
+        }
+
+        if (params.leg_color) {
+            legColorCheckboxes.forEach(chk => {
+                if (params.leg_color.includes(chk.value)) {
+                    chk.checked = true;
+                }
+            });
+        }
+
+        if (params.shape) {
+            shapeCheckboxes.forEach(chk => {
+                if (params.shape.includes(chk.value)) {
+                    chk.checked = true;
+                }
+            });
+        }
+    }
+
+    function filterProducts() {
+        const maxPrice = parseFloat(priceRange.value);
+
+        const selectedLegColors = Array.from(legColorCheckboxes)
+            .filter(chk => chk.checked)
+            .map(chk => chk.value.toLowerCase().trim());
+
+        const selectedMaterials = Array.from(materialTypeCheckboxes)
+            .filter(chk => chk.checked)
+            .map(chk => chk.value.toLowerCase().trim());
+
+        const selectedShapes = Array.from(shapeCheckboxes)
+            .filter(chk => chk.checked)
+            .map(chk => chk.value.toLowerCase().trim());
+
+        products.forEach(product => {
+            const price = parseFloat(product.dataset.price);
+            const legColor = product.dataset.legColor?.toLowerCase().trim();
+            const materialType = product.dataset.materialType?.toLowerCase().trim();
+            const shape = product.dataset.shape?.toLowerCase().trim();
+
+            let visible = true;
+
+            if (price > maxPrice) visible = false;
+            if (selectedLegColors.length > 0 && !selectedLegColors.includes(legColor)) visible = false;
+            if (selectedMaterials.length > 0 && !selectedMaterials.includes(materialType)) visible = false;
+            if (selectedShapes.length > 0 && !selectedShapes.includes(shape)) visible = false;
+
+            product.style.display = visible ? '' : 'none';
+        });
+    }
+
+    priceRange.addEventListener('input', () => {
+        priceValue.textContent = priceRange.value;
+        filterProducts();
+    });
+
+    legColorCheckboxes.forEach(chk => chk.addEventListener('change', filterProducts));
+    materialTypeCheckboxes.forEach(chk => chk.addEventListener('change', filterProducts));
+    shapeCheckboxes.forEach(chk => chk.addEventListener('change', filterProducts));
+
+    resetBtn.addEventListener('click', () => {
+        priceRange.value = priceRange.max;
+        priceValue.textContent = priceRange.max;
+
+        legColorCheckboxes.forEach(chk => chk.checked = false);
+        materialTypeCheckboxes.forEach(chk => chk.checked = false);
+        shapeCheckboxes.forEach(chk => chk.checked = false);
+
+        filterProducts();
+    });
+
+    applyURLFilters();
+    filterProducts();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Стулья - Мебель AERO{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Стулья</h1>
+
+    <div class="row">
+        <!-- Левая часть: товары -->
+        <div class="col-md-9">
+            {% if chairs %}
+                <div class="row row-cols-1 row-cols-md-3 g-4" id="products-list">
+                    {% for chair in chairs %}
+                        <div class="col product-item"
+                             data-price="{{ chair.price }}"
+                             data-leg-color="{{ chair.leg_color|lower }}"
+                             data-material-type="{{ chair.material_type|lower|trim }}"
+                             data-is-rotating="{{ 'true' if chair.is_rotating else 'false' }}"
+                             data-armrest="{{ 'true' if chair.armrest else 'false' }}">
+                            <div class="card h-100 text-center">
+                                <a href="{{ url_for('chair_detail', chair_id=chair.id) }}">
+                                    <img src="{{ url_for('static', filename=chair.image) }}" class="card-img-top" alt="{{ chair.name }}">
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title text-truncate" title="{{ chair.name }} {{ chair.description }}">
+                                        <strong>{{ chair.name }}  {{ chair.description }}</strong>
+                                    </p>
+                                    <p class="text-muted">Цвет ног: {{ chair.leg_color }}</p>
+                                    <p class="card-text">Цена: <strong>{{ chair.price }} ₽</strong></p>
+                                    <p class="card-text">В наличии: {{ chair.quantity }} шт.</p>
+
+                                    <a href="{{ url_for('chair_detail', chair_id=chair.id) }}" class="btn btn-outline-primary mb-2">Подробнее</a>
+
+                                    {% if chair.quantity > 0 %}
+                                        <form action="{{ url_for('add_to_cart', product_type='chair', product_id=chair.id) }}" method="post">
+                                            <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                                        </form>
+                                    {% else %}
+                                        <button class="btn btn-secondary" disabled>Нет в наличии</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center fs-5 mt-4">Стульев пока нет в наличии.</p>
+            {% endif %}
+        </div>
+
+        <!-- Правая часть: фильтры -->
+        <div class="col-md-3">
+            <h5>Фильтры</h5>
+            <hr>
+            <!-- Цена -->
+            <label for="priceRange">Цена (₽):</label>
+            <input type="range" id="priceRange" min="{{ min_price }}" max="{{ max_price }}" value="{{ max_price }}" step="10">
+            <div>Максимум: <span id="priceValue">{{ max_price }}</span> ₽</div>
+
+            <hr>
+
+            <!-- Цвет ног -->
+            <h6>Цвет ног:</h6>
+            {% for color in leg_colors %}
+                <div class="form-check">
+                    <input class="form-check-input leg-color-checkbox" type="checkbox" value="{{ color }}" id="legColor{{ loop.index }}">
+                    <label class="form-check-label" for="legColor{{ loop.index }}">
+                        {{ color }}
+                    </label>
+                </div>
+            {% endfor %}
+
+            <hr>
+
+            <!-- Материал -->
+            <h6>Материал:</h6>
+            {% for material in material_types %}
+                <div class="form-check">
+                    <input class="form-check-input material-type-checkbox" type="checkbox"
+                           value="{{ material }}"
+                           id="materialType{{ loop.index }}"
+                           {% if request.args.get('material') == material %}checked{% endif %}>
+                    <label class="form-check-label" for="materialType{{ loop.index }}">
+                        {{ material }}
+                    </label>
+                </div>
+            {% endfor %}
+
+
+            <hr>
+
+            <!-- Поворотный стул -->
+            <h6>Поворотный:</h6>
+            <div class="form-check">
+                <input class="form-check-input is-rotating-checkbox" type="checkbox" value="true" id="rotatingYes">
+                <label class="form-check-label" for="rotatingYes">Да</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input is-rotating-checkbox" type="checkbox" value="false" id="rotatingNo">
+                <label class="form-check-label" for="rotatingNo">Нет</label>
+            </div>
+
+            <hr>
+            <!-- Подлокотники -->
+            <h6>Подлокотники:</h6>
+            <div class="form-check">
+                <input class="form-check-input armrest-checkbox" type="checkbox" value="true" id="armrestYes">
+                <label class="form-check-label" for="armrestYes">Есть</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input armrest-checkbox" type="checkbox" value="false" id="armrestNo">
+                <label class="form-check-label" for="armrestNo">Нет</label>
+            </div>
+
+            <button id="resetFilters" class="btn btn-secondary btn-sm mt-3">Сбросить фильтры</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const priceRange = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    const legColorCheckboxes = document.querySelectorAll('.leg-color-checkbox');
+    const materialTypeCheckboxes = document.querySelectorAll('.material-type-checkbox');
+    const isRotatingCheckboxes = document.querySelectorAll('.is-rotating-checkbox');
+    const armrestCheckboxes = document.querySelectorAll('.armrest-checkbox');
+    const products = document.querySelectorAll('.product-item');
+    const resetBtn = document.getElementById('resetFilters');
+
+    function filterProducts() {
+        const maxPrice = parseFloat(priceRange.value);
+        const selectedLegColors = Array.from(legColorCheckboxes).filter(chk => chk.checked).map(chk => chk.value.toLowerCase().trim());
+        const selectedMaterials = Array.from(materialTypeCheckboxes).filter(chk => chk.checked).map(chk => chk.value.toLowerCase().trim());
+        const selectedIsRotating = Array.from(isRotatingCheckboxes).filter(chk => chk.checked).map(chk => chk.value.toLowerCase().trim());
+        const selectedArmrest = Array.from(armrestCheckboxes).filter(chk => chk.checked).map(chk => chk.value.toLowerCase().trim());
+
+        products.forEach(product => {
+            const price = parseFloat(product.dataset.price);
+            const legColor = product.dataset.legColor.toLowerCase().trim();
+            const materialType = product.dataset.materialType.toLowerCase().trim();
+            const isRotating = product.dataset.isRotating.toLowerCase().trim();
+            const armrest = product.dataset.armrest.toLowerCase().trim();
+
+            let visible = true;
+
+            if (price > maxPrice) visible = false;
+
+            if (selectedLegColors.length > 0 && !selectedLegColors.includes(legColor)) visible = false;
+
+            if (selectedMaterials.length > 0 && !selectedMaterials.includes(materialType)) visible = false;
+
+            if (selectedIsRotating.length > 0 && !selectedIsRotating.includes(isRotating)) visible = false;
+
+            if (selectedArmrest.length > 0 && !selectedArmrest.includes(armrest)) visible = false;
+
+            product.style.display = visible ? '' : 'none';
+        });
+    }
+
+    // Навешиваем слушатели
+    priceRange.addEventListener('input', () => {
+        priceValue.textContent = priceRange.value;
+        filterProducts();
+    });
+
+    legColorCheckboxes.forEach(chk => chk.addEventListener('change', filterProducts));
+    materialTypeCheckboxes.forEach(chk => chk.addEventListener('change', filterProducts));
+    isRotatingCheckboxes.forEach(chk => chk.addEventListener('change', filterProducts));
+    armrestCheckboxes.forEach(chk => chk.addEventListener('change', filterProducts));
+
+    resetBtn.addEventListener('click', () => {
+        priceRange.value = priceRange.max;
+        priceValue.textContent = priceRange.max;
+
+        legColorCheckboxes.forEach(chk => chk.checked = false);
+        materialTypeCheckboxes.forEach(chk => chk.checked = false);
+        isRotatingCheckboxes.forEach(chk => chk.checked = false);
+        armrestCheckboxes.forEach(chk => chk.checked = false);
+
+        filterProducts();
+    });
+
+    // Запуск фильтрации по умолчанию при загрузке страницы
+    filterProducts();
+});
+</script>
+{% endblock %}

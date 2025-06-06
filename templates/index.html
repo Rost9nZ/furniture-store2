@@ -1,1 +1,198 @@
+{% extends 'base.html' %}
 
+{% block title %}Главная - Мебель AERO{% endblock %}
+
+{% block content %}
+<!-- Баннер-слайдер на всю ширину -->
+<div class="hero-slider position-relative text-white text-center w-100" style="height: 500px; overflow: hidden;">
+    <div class="slider-images h-100 w-100" style="background-size: cover; background-position: center; background-repeat: no-repeat;" id="sliderBackground">
+        <div class="container d-flex flex-column justify-content-center align-items-center h-100">
+            <h1 class="display-4 fw-bold">Стиль и комфорт в каждом элементе</h1>
+            <p class="lead mb-4">Качественная мебель для дома и офиса с доставкой по всей стране</p>
+            <a href="{{ url_for('catalog') }}" class="btn btn-lg btn-primary">Перейти в каталог</a>
+        </div>
+    </div>
+
+    <!-- Стрелки -->
+    <button id="prevBtn" class="slider-arrow-left position-absolute top-50 start-0 translate-middle-y" style="z-index: 10;">
+        &#10094;
+    </button>
+    <button id="nextBtn" class="slider-arrow-right position-absolute top-50 end-0 translate-middle-y" style="z-index: 10;">
+        &#10095;
+    </button>
+</div>
+
+<script>
+    const images = [
+        "{{ url_for('static', filename='images/chtab.png') }}",
+        "{{ url_for('static', filename='images/chtab1.png') }}",
+        "{{ url_for('static', filename='images/chtab2.png') }}"
+    ];
+
+    let currentIndex = 0;
+    const background = document.getElementById('sliderBackground');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function updateBackground() {
+        background.style.backgroundImage = `url('${images[currentIndex]}')`;
+    }
+
+    prevBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        updateBackground();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % images.length;
+        updateBackground();
+    });
+
+    updateBackground();
+</script>
+
+<!-- Категории товаров -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Категории товаров</h2>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="category-card position-relative overflow-hidden rounded shadow-sm">
+                <a href="{{ url_for('tables') }}">
+                    <img src="{{ url_for('static', filename='images/Mexico238Arctic.png') }}" alt="Столы" class="img-fluid w-100">
+                    <div class="category-overlay d-flex justify-content-center align-items-center">
+                        <h3 class="text-white fw-bold">Столы</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="category-card position-relative overflow-hidden rounded shadow-sm">
+                <a href="{{ url_for('chairs') }}">
+                    <img src="{{ url_for('static', filename='images/B815m.png') }}" alt="Стулья" class="img-fluid w-100">
+                    <div class="category-overlay d-flex justify-content-center align-items-center">
+                        <h3 class="text-white fw-bold">Стулья</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Новинки товаров -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Наши товары</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+
+        <!-- Столы -->
+        {% for table in tables %}
+        <div class="col">
+            <div class="card h-100 text-center">
+                <a href="{{ url_for('table_detail', table_id=table.id) }}">
+                    <img src="{{ url_for('static', filename=table.image if table.image else 'images/Mexico238Arctic.png') }}" class="card-img-top" alt="{{ table.name }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-center align-items-center" style="color: black; margin-bottom: 10px;">
+                        <span>{{ table.name }}</span>
+                        <span style="margin-left: 15px;">{{ table.description }}</span>
+                        {% if table.material_type %}
+                            <span style="margin-left: 15px;">{{ table.material_type }}</span>
+                        {% endif %}
+                    </h5>
+
+                    <p class="card-text" style="margin-bottom: 8px;">Цвет ног: <strong>{{ table.leg_color }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Размер: <strong>{{ table.size }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Цена: <strong>{{ table.price }} ₽</strong></p>
+                    <p class="card-text" style="margin-bottom: 16px;">В наличии: {{ table.quantity }} шт.</p>
+
+                    {% if table.id in cart_items['table'] %}
+                        <button class="btn btn-success" disabled>Уже в корзине</button>
+                    {% elif table.quantity > 0 %}
+                        <form action="{{ url_for('add_to_cart', product_type='table', product_id=table.id) }}" method="post">
+                            <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>Нет в наличии</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Стулья -->
+        {% for chair in chairs %}
+        <div class="col">
+            <div class="card h-100 text-center">
+            <a href="{{ url_for('chair_detail', chair_id=chair.id) }}">
+                <img src="{{ url_for('static', filename=chair.image if chair.image else 'images/B815m.png') }}" class="card-img-top" alt="{{ chair.name }}">
+            </a>
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-center align-items-center" style="color: black; margin-bottom: 10px;">
+                        <span>{{ chair.name }}</span>
+                        <span style="margin-left: 15px;">{{ chair.description }}</span>
+                        {% if chair.rotating %}
+                            <span class="text-muted" style="margin-left: 15px;">Поворотный</span>
+                        {% endif %}
+                        <span style="margin-left: 15px;">{{ chair.material_type }}</span>
+                    </h5>
+
+
+                    <p class="card-text" style="margin-bottom: 8px;">Поворотный: <strong>{{ 'Да' if chair.is_rotating else 'Нет' }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Цвет ног: <strong>{{ chair.leg_color }}</strong></p>
+                    <p class="card-text" style="margin-bottom: 8px;">Цена: <strong>{{ chair.price }} ₽</strong></p>
+                    <p class="card-text" style="margin-bottom: 16px;">В наличии: {{ chair.quantity }} шт.</p>
+
+                    {% if chair.id in cart_items['chair'] %}
+                        <button class="btn btn-success" disabled>Уже в корзине</button>
+                    {% elif chair.quantity > 0 %}
+                        <form action="{{ url_for('add_to_cart', product_type='chair', product_id=chair.id) }}" method="post">
+                            <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>Нет в наличии</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}
+
+<style>
+    .slider-arrow-left,
+    .slider-arrow-right {
+        background: none;
+        border: none;
+        font-size: 3rem;
+        color: white;
+        opacity: 0.7;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+        padding: 0 15px;
+    }
+
+    .slider-arrow-left:hover,
+    .slider-arrow-right:hover {
+        opacity: 1;
+    }
+
+    /* Растяжение изображения на весь экран */
+    .slider-images {
+        background-size: cover !important;
+        background-position: center !important;
+    }
+
+    .card {
+        transition: transform 0.3s ease;
+        will-change: transform;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        z-index: 10;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        position: relative;
+    }
+
+</style>
